@@ -1,4 +1,8 @@
-# Welcome to My Journey
+- [Home](/)
+- [My Full Journey](/my-journey)
+- [About Me](/about)
+- [Photo Gallery](/photos)
+# Welcome to My Journey ### Explore deeper: [My Full Journey →](/my-journey)
 
 Hi, I'm Jitu. This is the story of my life — the paths I've walked, the lessons I've learned, and the moments that shaped me.
 
