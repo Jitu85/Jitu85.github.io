@@ -4,8 +4,14 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
   // Set dimensions
   const width = 640;
   const height = 480;
-  canvas.width = width;
-  canvas.height = height;
+  
+  // High-DPI Scaling
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
 
   let active = true;
   let score = 0;
@@ -37,6 +43,7 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     if (playerLane > 0) {
       playerLane--;
       targetCarX = lanesX[playerLane];
+      if (window.audioManager) window.audioManager.playLaneChange();
     }
   }
 
@@ -44,6 +51,7 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     if (playerLane < 2) {
       playerLane++;
       targetCarX = lanesX[playerLane];
+      if (window.audioManager) window.audioManager.playLaneChange();
     }
   }
 
@@ -72,6 +80,29 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     }
   }
 
+  // HTML touch button steering inputs
+  const steerLeftBtn = document.getElementById('steer-left');
+  const steerRightBtn = document.getElementById('steer-right');
+
+  function handleSteerLeft(e) {
+    e.preventDefault();
+    moveLeft();
+  }
+
+  function handleSteerRight(e) {
+    e.preventDefault();
+    moveRight();
+  }
+
+  if (steerLeftBtn) {
+    steerLeftBtn.addEventListener('click', handleSteerLeft);
+    steerLeftBtn.addEventListener('touchstart', handleSteerLeft, { passive: false });
+  }
+  if (steerRightBtn) {
+    steerRightBtn.addEventListener('click', handleSteerRight);
+    steerRightBtn.addEventListener('touchstart', handleSteerRight, { passive: false });
+  }
+
   window.addEventListener('keydown', handleInput);
   canvas.addEventListener('mousedown', handleInput);
   canvas.addEventListener('touchstart', handleInput, { passive: false });
@@ -81,6 +112,14 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     window.removeEventListener('keydown', handleInput);
     canvas.removeEventListener('mousedown', handleInput);
     canvas.removeEventListener('touchstart', handleInput);
+    if (steerLeftBtn) {
+      steerLeftBtn.removeEventListener('click', handleSteerLeft);
+      steerLeftBtn.removeEventListener('touchstart', handleSteerLeft);
+    }
+    if (steerRightBtn) {
+      steerRightBtn.removeEventListener('click', handleSteerRight);
+      steerRightBtn.removeEventListener('touchstart', handleSteerRight);
+    }
   };
 
   // Generate neon obstacle colors
@@ -89,8 +128,12 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  // Game Loop
-  function loop() {
+  // Game Loop decoupled from frame rate
+  let lastTime = performance.now();
+  let accumulator = 0;
+  const timestep = 1000 / 60; // 60 updates per second
+
+  function update() {
     if (!active) return;
     frame++;
 
@@ -131,6 +174,7 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
       if (!o.passed && o.y > playerCarY + carHeight) {
         o.passed = true;
         score++;
+        if (window.audioManager) window.audioManager.playScore();
         if (onScoreUpdate) onScoreUpdate(score);
       }
 
@@ -174,8 +218,9 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
         particles.splice(i, 1);
       }
     }
+  }
 
-    // --- RENDER GAME ---
+  function render() {
     ctx.fillStyle = '#05050f';
     ctx.fillRect(0, 0, width, height);
 
@@ -271,12 +316,32 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = '#ffffff';
     ctx.font = "800 24px 'Space Grotesk', sans-serif";
     ctx.fillText("RACER SCORE: " + score, 20, 40);
+  }
 
+  function loop(time) {
+    if (!active) return;
+    
+    let dt = time - lastTime;
+    lastTime = time;
+    if (dt > 250) dt = 250;
+
+    accumulator += dt;
+    while (accumulator >= timestep) {
+      update();
+      accumulator -= timestep;
+    }
+
+    render();
     requestAnimationFrame(loop);
   }
 
   function triggerCollision() {
     active = false;
+    if (window.audioManager) window.audioManager.playExplosion();
+
+    // Setup shake and flash intensities
+    let shake = 20;
+    let flash = 1.0;
 
     // Explosion particles
     const explosions = [];
@@ -293,15 +358,38 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
       });
     }
 
-    function animateExplosion() {
+    let lastExplosionTime = performance.now();
+    function animateExplosion(time) {
+      const dt = time - lastExplosionTime;
+      lastExplosionTime = time;
+      const ticks = Math.min(dt / (1000 / 60), 5); // clamp ticks
+
+      // Apply shake offset
+      ctx.save();
+      if (shake > 0) {
+        const dx = (Math.random() - 0.5) * shake;
+        const dy = (Math.random() - 0.5) * shake;
+        ctx.translate(dx, dy);
+        shake *= Math.pow(0.88, ticks);
+        if (shake < 0.5) shake = 0;
+      }
+
       ctx.fillStyle = '#05050f';
       ctx.fillRect(0, 0, width, height);
 
+      // Draw highway lane markings for static frame
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(110, 0); ctx.lineTo(110, height);
+      ctx.moveTo(530, 0); ctx.lineTo(530, height);
+      ctx.stroke();
+
       let count = 0;
       explosions.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
+        p.x += p.vx * ticks;
+        p.y += p.vy * ticks;
+        p.life -= p.decay * ticks;
         
         if (p.life > 0) {
           count++;
@@ -317,7 +405,17 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
       ctx.globalAlpha = 1.0;
       ctx.shadowBlur = 0;
 
-      if (count > 0) {
+      ctx.restore(); // restore shake translation
+
+      // Reddish alert screen flash on crash
+      if (flash > 0) {
+        ctx.fillStyle = `rgba(255, 0, 0, ${flash * 0.6})`;
+        ctx.fillRect(0, 0, width, height);
+        flash -= 0.08 * ticks;
+        if (flash < 0) flash = 0;
+      }
+
+      if (count > 0 || flash > 0 || shake > 0) {
         requestAnimationFrame(animateExplosion);
       } else {
         window.destroyReflexRacer();
@@ -325,9 +423,9 @@ window.initReflexRacer = function(canvas, onGameOver, onScoreUpdate) {
       }
     }
 
-    animateExplosion();
+    requestAnimationFrame(animateExplosion);
   }
 
   // Start game loop
-  loop();
+  requestAnimationFrame(loop);
 };

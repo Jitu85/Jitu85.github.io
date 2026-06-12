@@ -1,12 +1,15 @@
-const CACHE_NAME = 'jitus-playzone-v1';
+const CACHE_NAME = 'kids-playzone-v1';
 const ASSETS = [
   './index.html',
   './style.css',
   './games-data.js',
   './app.js',
+  './play/audio-manager.js',
+  './play/particle-grid.js',
   './play/flappy-rocket.js',
   './play/stack-tower.js',
-  './play/reflex-racer.js'
+  './play/reflex-racer.js',
+  './play/retro-snake.js'
 ];
 
 // Install Event

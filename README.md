@@ -1,6 +1,6 @@
-# Jitu's PlayZone Casual Games Portal 🎮
+# Kid's PlayZone Casual Games Portal 🎮
 
-Welcome to **Jitu's PlayZone**, a premium collection of casual and hypercasual browser-based retro games. Jitu's PlayZone runs directly in the browser, offers custom neon aesthetics, PWA capabilities for offline play, search & filtering, and local scoreboard tracking.
+Welcome to **Kid's PlayZone**, a premium collection of casual and hypercasual browser-based retro games. Kid's PlayZone runs directly in the browser, offers custom neon aesthetics, PWA capabilities for offline play, search & filtering, and local scoreboard tracking.
 
 ## Playable Games
 1. **Flappy Rocket**: Navigate your rocket ship through space gates by tapping to thrust.

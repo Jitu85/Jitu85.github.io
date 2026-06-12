@@ -4,11 +4,19 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
   // Set dimensions
   const width = 640;
   const height = 480;
-  canvas.width = width;
-  canvas.height = height;
+  
+  // High-DPI Scaling
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
 
   let active = true;
   let score = 0;
+  let perfectStreak = 0;
+  let floatingTexts = [];
 
   // Blocks definitions
   const blockHeight = 30;
@@ -94,12 +102,31 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
     
     // Create falling slice if there's an overhang
     if (sliceWidth > 0) {
+      perfectStreak = 0;
+      if (window.audioManager) window.audioManager.playSlice();
       fallingSlices.push({
         x: sliceX,
         y: currentBlock.y,
         width: sliceWidth,
         vy: 0,
         color: getNeonColor(stack.length)
+      });
+      score++;
+    } else {
+      perfectStreak++;
+      const bonus = 1 + Math.min(Math.floor(perfectStreak / 2), 3);
+      score += bonus;
+      
+      if (window.audioManager) window.audioManager.playPerfect();
+      
+      const txt = perfectStreak >= 3 ? `PERFECT x${perfectStreak} (+${bonus})` : "PERFECT!";
+      const col = perfectStreak >= 5 ? '#ffea00' : (perfectStreak >= 3 ? '#ff007f' : '#39ff14');
+      floatingTexts.push({
+        x: newX + newWidth / 2,
+        y: currentBlock.y - 15,
+        text: txt,
+        color: col,
+        life: 1.0
       });
     }
     
@@ -111,7 +138,6 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
       color: getNeonColor(stack.length)
     });
     
-    score++;
     if (onScoreUpdate) onScoreUpdate(score);
     
     // Scroll camera up if the tower grows beyond height / 2
@@ -127,6 +153,7 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
   // Miss drop: block falls down completely
   function triggerMissDrop() {
     active = false;
+    if (window.audioManager) window.audioManager.playExplosion();
     fallingSlices.push({
       x: currentBlock.x,
       y: currentBlock.y,
@@ -173,8 +200,12 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
     canvas.removeEventListener('touchstart', handleInput);
   };
 
-  // Main Loop
-  function loop() {
+  // Main Loop decoupled from frame rate
+  let lastTime = performance.now();
+  let accumulator = 0;
+  const timestep = 1000 / 60; // 60 updates per second
+
+  function update() {
     // Scroll camera smoothly
     if (Math.abs(cameraY - targetCameraY) > 0.1) {
       cameraY += (targetCameraY - cameraY) * 0.1;
@@ -198,6 +229,18 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
       slice.y += slice.vy;
     });
 
+    // Update Floating texts
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+      const ft = floatingTexts[i];
+      ft.y -= 0.8;
+      ft.life -= 0.02;
+      if (ft.life <= 0) {
+        floatingTexts.splice(i, 1);
+      }
+    }
+  }
+
+  function render() {
     // Render Background
     ctx.fillStyle = '#05050f';
     ctx.fillRect(0, 0, width, height);
@@ -246,6 +289,18 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
       ctx.globalAlpha = 1.0;
     }
 
+    // Draw Floating texts
+    ctx.shadowBlur = 0;
+    floatingTexts.forEach(ft => {
+      ctx.fillStyle = ft.color;
+      ctx.globalAlpha = ft.life;
+      ctx.font = "800 20px 'Space Grotesk', sans-serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(ft.text, ft.x, ft.y);
+    });
+    ctx.globalAlpha = 1.0;
+    ctx.textAlign = 'left';
+
     ctx.restore();
     ctx.shadowBlur = 0; // Reset shadow
 
@@ -253,6 +308,20 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = '#ffffff';
     ctx.font = "800 24px 'Space Grotesk', sans-serif";
     ctx.fillText("TOWER DEPTH: " + score, 20, 40);
+  }
+
+  function loop(time) {
+    let dt = time - lastTime;
+    lastTime = time;
+    if (dt > 250) dt = 250; // clamp spikes
+
+    accumulator += dt;
+    while (accumulator >= timestep) {
+      update();
+      accumulator -= timestep;
+    }
+
+    render();
 
     if (active || fallingSlices.some(s => s.y < height + 100)) {
       requestAnimationFrame(loop);
@@ -260,5 +329,5 @@ window.initStackTower = function(canvas, onGameOver, onScoreUpdate) {
   }
 
   // Run Game
-  loop();
+  requestAnimationFrame(loop);
 };

@@ -4,8 +4,14 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
   // Set logical size for scaling
   const width = 640;
   const height = 480;
-  canvas.width = width;
-  canvas.height = height;
+  
+  // High-DPI Scaling
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
 
   let active = true;
   let score = 0;
@@ -46,6 +52,7 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
     if (e.type === 'keydown' && e.code !== 'Space') return;
     e.preventDefault();
     velocity = lift;
+    if (window.audioManager) window.audioManager.playThrust();
     
     // Add thrust particles
     for (let i = 0; i < 8; i++) {
@@ -74,11 +81,13 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
     canvas.removeEventListener('touchstart', handleInput);
   };
   
-  // Main Game Loop
-  function loop() {
+  // Main Game Loop decoupled from frame rate
+  let lastTime = performance.now();
+  let accumulator = 0;
+  const timestep = 1000 / 60; // 60 updates per second
+
+  function update() {
     if (!active) return;
-    
-    // Update
     frame++;
     
     // 1. Stars Update
@@ -135,6 +144,7 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
       if (!g.passed && g.x + gateWidth < rocketX) {
         g.passed = true;
         score++;
+        if (window.audioManager) window.audioManager.playScore();
         if (onScoreUpdate) onScoreUpdate(score);
       }
       
@@ -153,8 +163,9 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
         gates.splice(i, 1);
       }
     }
-    
-    // Rendering
+  }
+
+  function render() {
     ctx.fillStyle = '#05050f';
     ctx.fillRect(0, 0, width, height);
     
@@ -229,13 +240,33 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = '#ffffff';
     ctx.font = "800 24px 'Space Grotesk', sans-serif";
     ctx.fillText("SCORE: " + score, 20, 40);
+  }
+
+  function loop(time) {
+    if (!active) return;
     
+    let dt = time - lastTime;
+    lastTime = time;
+    if (dt > 250) dt = 250; // clamp spikes
+    
+    accumulator += dt;
+    while (accumulator >= timestep) {
+      update();
+      accumulator -= timestep;
+    }
+    
+    render();
     requestAnimationFrame(loop);
   }
   
   function triggerGameOver() {
     active = false;
+    if (window.audioManager) window.audioManager.playExplosion();
     
+    // Setup shake and flash intensities
+    let shake = 18;
+    let flash = 0.9;
+
     // Explosion particles
     const explosions = [];
     for (let i = 0; i < 30; i++) {
@@ -250,7 +281,23 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
       });
     }
     
-    function drawExplosion() {
+    let lastExplosionTime = performance.now();
+    function drawExplosion(time) {
+      const dt = time - lastExplosionTime;
+      lastExplosionTime = time;
+      
+      const ticks = Math.min(dt / (1000 / 60), 5); // clamp ticks
+      
+      // Apply shake offset
+      ctx.save();
+      if (shake > 0) {
+        const dx = (Math.random() - 0.5) * shake;
+        const dy = (Math.random() - 0.5) * shake;
+        ctx.translate(dx, dy);
+        shake *= Math.pow(0.88, ticks);
+        if (shake < 0.5) shake = 0;
+      }
+
       ctx.fillStyle = '#05050f';
       ctx.fillRect(0, 0, width, height);
       
@@ -266,9 +313,9 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
       
       let elements = 0;
       explosions.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
+        p.x += p.vx * ticks;
+        p.y += p.vy * ticks;
+        p.life -= p.decay * ticks;
         
         if (p.life > 0) {
           elements++;
@@ -279,7 +326,17 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
         }
       });
       
-      if (elements > 0) {
+      ctx.restore(); // restore shake translation
+
+      // Draw overlay flash
+      if (flash > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${flash})`;
+        ctx.fillRect(0, 0, width, height);
+        flash -= 0.07 * ticks;
+        if (flash < 0) flash = 0;
+      }
+
+      if (elements > 0 || flash > 0 || shake > 0) {
         requestAnimationFrame(drawExplosion);
       } else {
         // Clear listeners and trigger callback
@@ -288,9 +345,9 @@ window.initFlappyRocket = function(canvas, onGameOver, onScoreUpdate) {
       }
     }
     
-    drawExplosion();
+    requestAnimationFrame(drawExplosion);
   }
   
   // Start loop
-  loop();
+  requestAnimationFrame(loop);
 };

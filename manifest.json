@@ -1,7 +1,7 @@
 {
-  "name": "Jitu's PlayZone Casual Games",
-  "short_name": "Jitu's PlayZone",
-  "description": "Jitu's premium casual browser games portal",
+  "name": "Kid's PlayZone Casual Games",
+  "short_name": "Kid's PlayZone",
+  "description": "Premium casual browser games portal for kids",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a16",

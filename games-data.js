@@ -254,7 +254,7 @@ const gamesData = [
     mechanics: "Directional arrow controls and boundary dodging.",
     difficulty: "Easy",
     rating: 4.6,
-    playable: false,
+    playable: true,
     color: "var(--neon-cyan)",
     icon: "🐍",
     accent: "#00f0ff"

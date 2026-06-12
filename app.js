@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalOverlay = document.getElementById('modal-overlay');
   const modalContainer = document.getElementById('modal-container');
   const modalCloseBtn = document.getElementById('modal-close');
+  const muteBtn = document.getElementById('mute-btn');
   
   let activeCategory = 'all';
   let searchQuery = '';
@@ -12,6 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Pre-populate mock leaderboards in LocalStorage if not present
   initializeLeaderboards();
+
+  // Mute button handler
+  if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      if (window.audioManager) {
+        const isMuted = window.audioManager.toggleMute();
+        muteBtn.innerHTML = isMuted ? 
+          '<i class="fa-solid fa-volume-xmark"></i>' : 
+          '<i class="fa-solid fa-volume-high"></i>';
+      }
+    });
+  }
 
   // Initially render the list of games
   renderGames();
@@ -33,7 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Modal Close Action
-  modalCloseBtn.addEventListener('click', closeModal);
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeModal);
+  }
   modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) closeModal();
   });
@@ -168,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="game-intro-icon">${game.icon}</div>
           <h1 class="game-intro-title" style="color:var(--text-secondary);">${game.title}</h1>
           <h2 style="font-family:var(--font-display); color:var(--modal-accent); margin-bottom:1rem;">DEMO PREVIEW</h2>
-          <p class="game-intro-desc">This title is currently under production by Jitu's PlayZone development crew. Stay tuned for the upcoming alpha release!</p>
+          <p class="game-intro-desc">This title is currently under production by Kid's PlayZone development crew. Stay tuned for the upcoming alpha release!</p>
           <div style="background:rgba(255,255,255,0.03); border:1px dashed var(--border-color); padding:1rem 2rem; border-radius:12px; font-size:0.9rem;">
             Estimated Launch: <strong>Sprint 3 (Q3 2026)</strong>
           </div>
@@ -209,7 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure existing instances are stopped
     stopActiveGame();
 
+    if (window.audioManager) {
+      window.audioManager.init();
+      window.audioManager.startMusic();
+    }
+
     const onGameOver = (score) => {
+      if (window.audioManager) {
+        window.audioManager.stopMusic();
+        window.audioManager.playGameOver();
+      }
       savePlayerScore(gameId, score);
       showGameOverOverlay(gameId, score);
     };
@@ -227,6 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (gameId === 'reflex-racer' && typeof window.initReflexRacer === 'function') {
       window.initReflexRacer(canvas, onGameOver, onScoreUpdate);
       activeGameInstance = { destroy: window.destroyReflexRacer };
+    } else if (gameId === 'retro-snake' && typeof window.initRetroSnake === 'function') {
+      window.initRetroSnake(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyRetroSnake };
     }
   }
 
@@ -269,6 +296,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cleanup helper
   function stopActiveGame() {
+    if (window.audioManager) {
+      window.audioManager.stopMusic();
+    }
     if (activeGameInstance && typeof activeGameInstance.destroy === 'function') {
       activeGameInstance.destroy();
       activeGameInstance = null;
@@ -287,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Score Management Logic
   function initializeLeaderboards() {
-    if (localStorage.getItem('jitus_playzone_leaderboards')) return;
+    if (localStorage.getItem('kids_playzone_leaderboards')) return;
 
     // curating mockup database
     const initialScores = {
@@ -325,18 +355,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    localStorage.setItem('jitus_playzone_leaderboards', JSON.stringify(initialScores));
+    localStorage.setItem('kids_playzone_leaderboards', JSON.stringify(initialScores));
   }
 
   function getScoresForGame(gameId) {
-    const data = localStorage.getItem('jitus_playzone_leaderboards');
+    const data = localStorage.getItem('kids_playzone_leaderboards');
     if (!data) return [];
     const scores = JSON.parse(data);
     return scores[gameId] || [];
   }
 
   function savePlayerScore(gameId, score) {
-    const data = localStorage.getItem('jitus_playzone_leaderboards');
+    const data = localStorage.getItem('kids_playzone_leaderboards');
     if (!data) return;
     const allScores = JSON.parse(data);
     const gameScores = allScores[gameId] || [];
@@ -349,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Keep top 5 scores
     allScores[gameId] = gameScores.slice(0, 5);
-    localStorage.setItem('jitus_playzone_leaderboards', JSON.stringify(allScores));
+    localStorage.setItem('kids_playzone_leaderboards', JSON.stringify(allScores));
   }
 
   function updateLeaderboardView(gameId) {
