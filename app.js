@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeCategory = 'all';
   let searchQuery = '';
   let activeGameInstance = null; // tracking active game destruction callback
+  let searchEventTimeout = null; // debounce search events
 
   // Pre-populate mock leaderboards in LocalStorage if not present
   initializeLeaderboards();
@@ -18,10 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (muteBtn) {
     muteBtn.addEventListener('click', () => {
       if (window.audioManager) {
+        window.audioManager.init(); // Initialize audio context on click gesture
         const isMuted = window.audioManager.toggleMute();
         muteBtn.innerHTML = isMuted ? 
           '<i class="fa-solid fa-volume-xmark"></i>' : 
           '<i class="fa-solid fa-volume-high"></i>';
+        
+        // Audio feedback chime on unmute
+        if (!isMuted) {
+          window.audioManager.playBlip();
+        }
       }
     });
   }
@@ -33,6 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     renderGames();
+
+    // Debounced Google Analytics event
+    clearTimeout(searchEventTimeout);
+    if (searchQuery) {
+      searchEventTimeout = setTimeout(() => {
+        if (typeof gtag === 'function') {
+          gtag('event', 'search_game', { 'search_term': searchQuery });
+        }
+      }, 800);
+    }
   });
 
   // Filter button clicks
@@ -42,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.classList.add('active');
       activeCategory = e.target.getAttribute('data-category');
       renderGames();
+
+      // Send Google Analytics event
+      if (typeof gtag === 'function') {
+        gtag('event', 'select_category', { 'category': activeCategory });
+      }
     }
   });
 
@@ -100,6 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       card.addEventListener('click', () => openGameDetail(game));
+      card.addEventListener('mouseenter', () => {
+        if (window.audioManager && !window.audioManager.isMuted()) {
+          window.audioManager.init();
+          window.audioManager.playHover();
+        }
+      });
       gameGrid.appendChild(card);
     });
   }
@@ -204,6 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
     intro.style.display = 'none';
     canvasContainer.style.display = 'flex';
 
+    // Send Google Analytics event
+    if (typeof gtag === 'function') {
+      gtag('event', 'game_start', { 'game_id': game.id, 'game_title': game.title });
+    }
+
     // Inject mobile touch overlays
     if (game.id === 'retro-snake') {
       const controlsDiv = document.createElement('div');
@@ -226,6 +259,21 @@ document.addEventListener('DOMContentLoaded', () => {
       controlsDiv.innerHTML = `
         <button class="mobile-btn steer-left" id="steer-left" aria-label="Steer Left"><i class="fa-solid fa-arrow-left"></i></button>
         <button class="mobile-btn steer-right" id="steer-right" aria-label="Steer Right"><i class="fa-solid fa-arrow-right"></i></button>
+      `;
+      canvasContainer.appendChild(controlsDiv);
+    } else if (game.id === 'endless-runner') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'mobile-controls mobile-runner-overlay';
+      controlsDiv.id = 'mobile-runner-controls';
+      controlsDiv.innerHTML = `
+        <div class="runner-left-group">
+          <button class="mobile-btn runner-left" id="runner-left" aria-label="Move Left"><i class="fa-solid fa-arrow-left"></i></button>
+          <button class="mobile-btn runner-right" id="runner-right" aria-label="Move Right"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <div class="runner-right-group">
+          <button class="mobile-btn runner-up" id="runner-up" aria-label="Jump"><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="mobile-btn runner-down" id="runner-down" aria-label="Slide"><i class="fa-solid fa-arrow-down"></i></button>
+        </div>
       `;
       canvasContainer.appendChild(controlsDiv);
     }
@@ -262,6 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       savePlayerScore(gameId, score);
       showGameOverOverlay(gameId, score);
+
+      // Send Google Analytics event
+      if (typeof gtag === 'function') {
+        gtag('event', 'game_over', { 'game_id': gameId, 'score': score });
+      }
     };
 
     const onScoreUpdate = (currentScore) => {
@@ -280,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (gameId === 'retro-snake' && typeof window.initRetroSnake === 'function') {
       window.initRetroSnake(canvas, onGameOver, onScoreUpdate);
       activeGameInstance = { destroy: window.destroyRetroSnake };
+    } else if (gameId === 'endless-runner' && typeof window.initEndlessRunner === 'function') {
+      window.initEndlessRunner(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyEndlessRunner };
     }
   }
 

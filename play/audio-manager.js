@@ -174,6 +174,24 @@ window.audioManager = (function() {
     },
     // Reflex Racer sounds
     playLaneChange: () => playTone(300, 'sine', 0.08, 550),
+    // UI hover tick sound
+    playHover: () => {
+      if (!ctx) init();
+      if (isMuted) return;
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, ctx.currentTime);
+        gain.gain.setValueAtTime(0.015, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(masterVolume);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } catch (e) {}
+    },
     startMusic: startMusic,
     stopMusic: stopMusic
   };

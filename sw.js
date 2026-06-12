@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kids-playzone-v2';
+const CACHE_NAME = 'kids-playzone-v6';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -9,11 +9,13 @@ const ASSETS = [
   './play/flappy-rocket.js',
   './play/stack-tower.js',
   './play/reflex-racer.js',
-  './play/retro-snake.js'
+  './play/retro-snake.js',
+  './play/endless-runner.js'
 ];
 
 // Install Event
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[Service Worker] Caching Game Shell and Assets');
@@ -34,7 +36,7 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 

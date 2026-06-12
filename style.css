@@ -880,4 +880,31 @@ footer a {
   }
 }
 
+/* Mobile Runner Controls styling */
+.mobile-runner-overlay {
+  position: absolute;
+  bottom: 25px;
+  left: 25px;
+  right: 25px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.runner-left-group,
+.runner-right-group {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.mobile-runner-overlay .mobile-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  font-size: 1.5rem;
+}
+
+
 

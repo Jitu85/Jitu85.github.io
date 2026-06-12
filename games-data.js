@@ -46,7 +46,7 @@ const gamesData = [
     mechanics: "Swipe and dodge in 3 lanes.",
     difficulty: "Hard",
     rating: 4.6,
-    playable: false,
+    playable: true,
     color: "var(--neon-purple)",
     icon: "🏃",
     accent: "#b026ff"
