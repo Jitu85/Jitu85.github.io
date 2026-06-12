@@ -25,6 +25,13 @@
   window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+    
+    // Spawn glowing cyber-sparks on cursor move (max particle count to prevent lag)
+    if (particles.length < 150) {
+      for (let i = 0; i < 2; i++) {
+        particles.push(new Particle(true, mouse.x, mouse.y));
+      }
+    }
   });
 
   window.addEventListener('mouseout', () => {
@@ -40,13 +47,18 @@
   });
 
   class Particle {
-    constructor() {
-      this.x = Math.random() * width;
-      this.y = Math.random() * height;
-      this.vx = (Math.random() - 0.5) * 0.6;
-      this.vy = (Math.random() - 0.5) * 0.6;
-      this.size = Math.random() * 2 + 1;
+    constructor(isSpark = false, x, y) {
+      this.isSpark = isSpark;
+      this.x = x !== undefined ? x : Math.random() * width;
+      this.y = y !== undefined ? y : Math.random() * height;
+      this.vx = (Math.random() - 0.5) * (isSpark ? 1.4 : 0.6);
+      this.vy = (Math.random() - 0.5) * (isSpark ? 1.4 : 0.6);
+      this.size = isSpark ? (Math.random() * 1.5 + 0.6) : (Math.random() * 2 + 1);
       this.color = Math.random() > 0.5 ? '#00f0ff' : '#ff007f'; // cyan and pink dots
+      if (isSpark) {
+        this.life = 1.0;
+        this.decay = Math.random() * 0.02 + 0.012; // slowly decays
+      }
     }
 
     update() {
@@ -57,8 +69,8 @@
       if (this.x < 0 || this.x > width) this.vx *= -1;
       if (this.y < 0 || this.y > height) this.vy *= -1;
 
-      // Mouse interactive push force
-      if (mouse.x !== null && mouse.y !== null) {
+      // Mouse interactive push force (only regular particles repel)
+      if (!this.isSpark && mouse.x !== null && mouse.y !== null) {
         const dx = this.x - mouse.x;
         const dy = this.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -73,9 +85,11 @@
 
     draw() {
       ctx.fillStyle = this.color;
+      ctx.globalAlpha = this.isSpark ? this.life : 1.0;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fill();
+      ctx.globalAlpha = 1.0;
     }
   }
 
@@ -95,8 +109,11 @@
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < connectionDist) {
-          // Fade connection lines as particles drift apart
-          const alpha = (connectionDist - dist) / connectionDist * 0.12;
+          // Fade connection lines as particles drift apart and as sparks decay
+          let alpha = (connectionDist - dist) / connectionDist * 0.12;
+          if (p1.isSpark) alpha *= p1.life;
+          if (p2.isSpark) alpha *= p2.life;
+
           ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
           ctx.lineWidth = 0.8;
           ctx.beginPath();
@@ -115,10 +132,19 @@
     // Draw background grid effect
     drawConnections();
     
-    particles.forEach(p => {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
       p.update();
       p.draw();
-    });
+
+      // Filter out and splice decayed sparks
+      if (p.isSpark) {
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
 
     requestAnimationFrame(animate);
   }
