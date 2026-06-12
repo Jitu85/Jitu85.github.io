@@ -204,6 +204,32 @@ document.addEventListener('DOMContentLoaded', () => {
     intro.style.display = 'none';
     canvasContainer.style.display = 'flex';
 
+    // Inject mobile touch overlays
+    if (game.id === 'retro-snake') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'mobile-controls mobile-dpad-overlay';
+      controlsDiv.id = 'mobile-dpad';
+      controlsDiv.innerHTML = `
+        <button class="mobile-btn dpad-up" id="dpad-up" aria-label="Up"><i class="fa-solid fa-caret-up"></i></button>
+        <div class="dpad-row">
+          <button class="mobile-btn dpad-left" id="dpad-left" aria-label="Left"><i class="fa-solid fa-caret-left"></i></button>
+          <div class="dpad-center"></div>
+          <button class="mobile-btn dpad-right" id="dpad-right" aria-label="Right"><i class="fa-solid fa-caret-right"></i></button>
+        </div>
+        <button class="mobile-btn dpad-down" id="dpad-down" aria-label="Down"><i class="fa-solid fa-caret-down"></i></button>
+      `;
+      canvasContainer.appendChild(controlsDiv);
+    } else if (game.id === 'reflex-racer') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'mobile-controls mobile-steer-overlay';
+      controlsDiv.id = 'mobile-steer';
+      controlsDiv.innerHTML = `
+        <button class="mobile-btn steer-left" id="steer-left" aria-label="Steer Left"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="mobile-btn steer-right" id="steer-right" aria-label="Steer Right"><i class="fa-solid fa-arrow-right"></i></button>
+      `;
+      canvasContainer.appendChild(controlsDiv);
+    }
+
     // Inject game script dynamically
     const scriptId = `script-game-${game.id}`;
     let script = document.getElementById(scriptId);

@@ -739,3 +739,89 @@ footer a {
     font-size: 2.2rem;
   }
 }
+
+/* Mobile Touch Controls Overlay Styling */
+.mobile-controls {
+  display: none;
+  pointer-events: none;
+  font-family: var(--font-display);
+}
+
+@media (pointer: coarse) {
+  .mobile-controls {
+    display: flex;
+  }
+}
+
+.mobile-steer-overlay {
+  position: absolute;
+  bottom: 25px;
+  left: 25px;
+  right: 25px;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+.mobile-dpad-overlay {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  flex-direction: column;
+  align-items: center;
+  z-index: 100;
+}
+
+.mobile-btn {
+  pointer-events: auto;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(10, 10, 22, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--modal-accent, var(--neon-pink));
+  color: #fff;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.6), 
+    inset 0 0 10px rgba(var(--modal-accent-rgb, 255, 0, 127), 0.05),
+    0 0 5px rgba(var(--modal-accent-rgb, 255, 0, 127), 0.15);
+}
+
+.mobile-btn:active {
+  transform: scale(0.9);
+  background: rgba(var(--modal-accent-rgb, 255, 0, 127), 0.25);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.8),
+    inset 0 0 5px rgba(var(--modal-accent-rgb, 255, 0, 127), 0.4),
+    0 0 20px var(--modal-accent);
+  color: var(--modal-accent);
+}
+
+.dpad-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.dpad-center {
+  width: 54px;
+  height: 54px;
+}
+
+/* Customize rounded shapes for steering buttons */
+.mobile-steer-overlay .mobile-btn {
+  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  font-size: 1.6rem;
+}
+

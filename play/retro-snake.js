@@ -4,8 +4,14 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
   // Set dimensions
   const width = 640;
   const height = 480;
-  canvas.width = width;
-  canvas.height = height;
+  
+  // High-DPI Scaling
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
 
   let active = true;
   let score = 0;
@@ -34,11 +40,33 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
   // Speed controls (frames per update)
   let speedDelay = 8; 
 
-  // Touch arrows D-pad geometry for mobile overlay
-  const dpadX = width - 110;
-  const dpadY = height - 110;
-  const dpadBtnSize = 35;
-  const showDpad = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  // HTML D-pad touch button inputs
+  const dpadUpBtn = document.getElementById('dpad-up');
+  const dpadDownBtn = document.getElementById('dpad-down');
+  const dpadLeftBtn = document.getElementById('dpad-left');
+  const dpadRightBtn = document.getElementById('dpad-right');
+
+  function handleDpadUp(e) { e.preventDefault(); changeDirection(0, -1); }
+  function handleDpadDown(e) { e.preventDefault(); changeDirection(0, 1); }
+  function handleDpadLeft(e) { e.preventDefault(); changeDirection(-1, 0); }
+  function handleDpadRight(e) { e.preventDefault(); changeDirection(1, 0); }
+
+  if (dpadUpBtn) {
+    dpadUpBtn.addEventListener('click', handleDpadUp);
+    dpadUpBtn.addEventListener('touchstart', handleDpadUp, { passive: false });
+  }
+  if (dpadDownBtn) {
+    dpadDownBtn.addEventListener('click', handleDpadDown);
+    dpadDownBtn.addEventListener('touchstart', handleDpadDown, { passive: false });
+  }
+  if (dpadLeftBtn) {
+    dpadLeftBtn.addEventListener('click', handleDpadLeft);
+    dpadLeftBtn.addEventListener('touchstart', handleDpadLeft, { passive: false });
+  }
+  if (dpadRightBtn) {
+    dpadRightBtn.addEventListener('click', handleDpadRight);
+    dpadRightBtn.addEventListener('touchstart', handleDpadRight, { passive: false });
+  }
 
   // Input Handling
   function changeDirection(newDx, newDy) {
@@ -103,14 +131,26 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
   }
 
   window.addEventListener('keydown', handleKeydown);
-  canvas.addEventListener('mousedown', handlePointerDown);
-  canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
 
   window.destroyRetroSnake = function() {
     active = false;
     window.removeEventListener('keydown', handleKeydown);
-    canvas.removeEventListener('mousedown', handlePointerDown);
-    canvas.removeEventListener('touchstart', handlePointerDown);
+    if (dpadUpBtn) {
+      dpadUpBtn.removeEventListener('click', handleDpadUp);
+      dpadUpBtn.removeEventListener('touchstart', handleDpadUp);
+    }
+    if (dpadDownBtn) {
+      dpadDownBtn.removeEventListener('click', handleDpadDown);
+      dpadDownBtn.removeEventListener('touchstart', handleDpadDown);
+    }
+    if (dpadLeftBtn) {
+      dpadLeftBtn.removeEventListener('click', handleDpadLeft);
+      dpadLeftBtn.removeEventListener('touchstart', handleDpadLeft);
+    }
+    if (dpadRightBtn) {
+      dpadRightBtn.removeEventListener('click', handleDpadRight);
+      dpadRightBtn.removeEventListener('touchstart', handleDpadRight);
+    }
   };
 
   function spawnFood() {
@@ -137,13 +177,18 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
     let shake = 18;
     let flash = 0.85;
 
-    function animateCrash() {
+    let lastCrashTime = performance.now();
+    function animateCrash(time) {
+      const dt = time - lastCrashTime;
+      lastCrashTime = time;
+      const ticks = Math.min(dt / (1000 / 60), 5); // clamp ticks
+
       ctx.save();
       if (shake > 0) {
         const dx = (Math.random() - 0.5) * shake;
         const dy = (Math.random() - 0.5) * shake;
         ctx.translate(dx, dy);
-        shake *= 0.88;
+        shake *= Math.pow(0.88, ticks);
         if (shake < 0.5) shake = 0;
       }
 
@@ -162,7 +207,7 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
       if (flash > 0) {
         ctx.fillStyle = `rgba(255, 0, 0, ${flash * 0.55})`;
         ctx.fillRect(0, 0, width, height);
-        flash -= 0.08;
+        flash -= 0.08 * ticks;
       }
 
       if (flash > 0 || shake > 0) {
@@ -173,11 +218,15 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
       }
     }
 
-    animateCrash();
+    requestAnimationFrame(animateCrash);
   }
 
-  // Game Loop
-  function loop() {
+  // Game Loop decoupled from frame rate
+  let lastTime = performance.now();
+  let accumulator = 0;
+  const timestep = 1000 / 60; // 60 updates per second
+
+  function update() {
     if (!active) return;
     frame++;
 
@@ -218,8 +267,9 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
         snake.pop();
       }
     }
+  }
 
-    // --- RENDER SECTION ---
+  function render() {
     ctx.fillStyle = '#05050f';
     ctx.fillRect(0, 0, width, height);
 
@@ -262,50 +312,25 @@ window.initRetroSnake = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = '#ffffff';
     ctx.font = "800 24px 'Space Grotesk', sans-serif";
     ctx.fillText("SNAKE SCORE: " + score, 20, 40);
+  }
 
-    // Render virtual D-pad on mobile device triggers
-    if (showDpad) {
-      ctx.globalAlpha = 0.35;
-      ctx.fillStyle = '#ffffff';
-      
-      // Up button
-      ctx.beginPath();
-      ctx.roundRect(dpadX, dpadY - dpadBtnSize, dpadBtnSize, dpadBtnSize, 6);
-      ctx.fill();
-      ctx.fillStyle = '#000000';
-      ctx.font = "800 16px 'Space Grotesk', sans-serif";
-      ctx.fillText("▲", dpadX + 11, dpadY - dpadBtnSize + 22);
+  function loop(time) {
+    if (!active) return;
+    
+    let dt = time - lastTime;
+    lastTime = time;
+    if (dt > 250) dt = 250;
 
-      // Down button
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(dpadX, dpadY + dpadBtnSize, dpadBtnSize, dpadBtnSize, 6);
-      ctx.fill();
-      ctx.fillStyle = '#000000';
-      ctx.fillText("▼", dpadX + 11, dpadY + dpadBtnSize + 22);
-
-      // Left button
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(dpadX - dpadBtnSize, dpadY, dpadBtnSize, dpadBtnSize, 6);
-      ctx.fill();
-      ctx.fillStyle = '#000000';
-      ctx.fillText("◀", dpadX - dpadBtnSize + 11, dpadY + 22);
-
-      // Right button
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(dpadX + dpadBtnSize, dpadY, dpadBtnSize, dpadBtnSize, 6);
-      ctx.fill();
-      ctx.fillStyle = '#000000';
-      ctx.fillText("▶", dpadX + dpadBtnSize + 11, dpadY + 22);
-
-      ctx.globalAlpha = 1.0;
+    accumulator += dt;
+    while (accumulator >= timestep) {
+      update();
+      accumulator -= timestep;
     }
 
+    render();
     requestAnimationFrame(loop);
   }
 
   // Run loop
-  loop();
+  requestAnimationFrame(loop);
 };
