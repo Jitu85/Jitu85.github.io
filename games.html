@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TT5DLM0T87"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-TT5DLM0T87');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kid's PlayZone | Casual Games Portal</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0a16">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+</head>
+<body>
+  <!-- Animated Background Glow Blobs -->
+  <div class="bg-glow-blob cyan"></div>
+  <div class="bg-glow-blob pink"></div>
+  <div class="bg-glow-blob purple"></div>
+
+  <header>
+    <a href="#" class="logo">
+      <span>KID'S</span> PLAYZONE
+    </a>
+    <div class="nav-actions">
+      <a href="index.html" class="back-btn" title="Back to Welcome Screen">
+        <i class="fa-solid fa-door-open"></i> Portal
+      </a>
+      <button id="mute-btn" class="back-btn" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-secondary);">
+        <i class="fa-solid fa-volume-high"></i>
+      </button>
+      <a href="https://jitu85.github.io/Abhijit-Misra/" class="back-btn">
+        <i class="fa-solid fa-house"></i> Home
+      </a>
+      <button onclick="window.close();" class="back-btn" style="background:none; border:1px solid var(--border-color); cursor:pointer;">
+        <i class="fa-solid fa-xmark"></i> Close
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Highlight Section -->
+  <main>
+    <section class="hero-container">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="hero-badge">Featured Game 🌟</span>
+          <h1 class="hero-title">Reflex Racer</h1>
+          <p class="hero-desc">Take control of a high-speed hovercar, navigate through lane-shifting highways, and dodge oncoming traffic in this neon-drenched retro endless racing experience.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="document.querySelector('.game-card[style*=\'var(--neon-lime)\']').click()">
+              <i class="fa-solid fa-play"></i> PLAY NOW
+            </button>
+          </div>
+        </div>
+        <div class="hero-graphic">🏎️</div>
+      </div>
+    </section>
+
+    <!-- Search & Filter Controls -->
+    <section class="search-filter-section">
+      <div class="controls-row">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" placeholder="Search 20+ arcade games...">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-category="all">All Games</button>
+          <button class="filter-btn" data-category="arcade">Arcade</button>
+          <button class="filter-btn" data-category="action">Action</button>
+          <button class="filter-btn" data-category="puzzle">Puzzle</button>
+          <button class="filter-btn" data-category="casual">Casual</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Games Grid Section -->
+    <section class="grid-container" style="margin-top: 2rem;">
+      <h2 class="section-title">
+        <i class="fa-solid fa-gamepad"></i> Explore the Catalog
+      </h2>
+      <div class="game-grid" id="game-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive Game Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-container" id="modal-container">
+      <!-- Injected by app.js -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>ABHIJIT KUMAR MISRA &copy; 2026 Kid's PlayZone. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="play/audio-manager.js"></script>
+  <script src="games-data.js"></script>
+  <script src="app.js"></script>
+  <script src="play/particle-grid.js"></script>
+  <script>
+    // Register Service Worker for offline play (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

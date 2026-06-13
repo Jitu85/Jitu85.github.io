@@ -276,6 +276,20 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
       canvasContainer.appendChild(controlsDiv);
+    } else if (game.id === 'platform-jumper') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'mobile-controls mobile-runner-overlay';
+      controlsDiv.id = 'mobile-runner-controls';
+      controlsDiv.innerHTML = `
+        <div class="runner-left-group">
+          <button class="mobile-btn runner-left" id="runner-left" aria-label="Move Left"><i class="fa-solid fa-arrow-left"></i></button>
+          <button class="mobile-btn runner-right" id="runner-right" aria-label="Move Right"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <div class="runner-right-group">
+          <button class="mobile-btn runner-up" id="runner-up" aria-label="Jump"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+      `;
+      canvasContainer.appendChild(controlsDiv);
     }
 
     // Inject game script dynamically
@@ -336,6 +350,51 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (gameId === 'endless-runner' && typeof window.initEndlessRunner === 'function') {
       window.initEndlessRunner(canvas, onGameOver, onScoreUpdate);
       activeGameInstance = { destroy: window.destroyEndlessRunner };
+    } else if (gameId === 'balloon-pop' && typeof window.initBalloonPop === 'function') {
+      window.initBalloonPop(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyBalloonPop };
+    } else if (gameId === 'word-search' && typeof window.initWordSearch === 'function') {
+      window.initWordSearch(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyWordSearch };
+    } else if (gameId === 'bubble-shooter' && typeof window.initBubbleShooter === 'function') {
+      window.initBubbleShooter(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyBubbleShooter };
+    } else if (gameId === 'space-defender' && typeof window.initSpaceDefender === 'function') {
+      window.initSpaceDefender(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroySpaceDefender };
+    } else if (gameId === 'air-hockey' && typeof window.initAirHockey === 'function') {
+      window.initAirHockey(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyAirHockey };
+    } else if (gameId === 'archery-master' && typeof window.initArcheryMaster === 'function') {
+      window.initArcheryMaster(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyArcheryMaster };
+    } else if (gameId === 'road-traffic' && typeof window.initRoadTraffic === 'function') {
+      window.initRoadTraffic(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyRoadTraffic };
+    } else if (gameId === 'sushi-spin' && typeof window.initSushiSpin === 'function') {
+      window.initSushiSpin(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroySushiSpin };
+    } else if (gameId === 'match-3-candy' && typeof window.initMatch3Candy === 'function') {
+      window.initMatch3Candy(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyMatch3Candy };
+    } else if (gameId === 'merge-puzzle' && typeof window.initMergePuzzle === 'function') {
+      window.initMergePuzzle(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyMergePuzzle };
+    } else if (gameId === 'math-mahjong' && typeof window.initMathMahjong === 'function') {
+      window.initMathMahjong(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyMathMahjong };
+    } else if (gameId === 'pixel-painter' && typeof window.initPixelPainter === 'function') {
+      window.initPixelPainter(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyPixelPainter };
+    } else if (gameId === 'platform-jumper' && typeof window.initPlatformJumper === 'function') {
+      window.initPlatformJumper(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyPlatformJumper };
+    } else if (gameId === 'idle-miner' && typeof window.initIdleMiner === 'function') {
+      window.initIdleMiner(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyIdleMiner };
+    } else if (gameId === 'merge-restaurant' && typeof window.initMergeRestaurant === 'function') {
+      window.initMergeRestaurant(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyMergeRestaurant };
     }
   }
 
@@ -423,10 +482,85 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'GridRider', score: 33 },
         { name: 'DodgeMaster', score: 24 },
         { name: 'SlowLane', score: 14 }
-      ]
+      ],
+      'balloon-pop': [
+        { name: 'PopMaster', score: 185 },
+        { name: 'ComboKing', score: 140 },
+        { name: 'BurstPro', score: 95 }
+      ],
+      'word-search': [
+        { name: 'LexiQueen', score: 580 },
+        { name: 'WordHunter', score: 420 },
+        { name: 'LetterBoss', score: 310 }
+      ],
+      'bubble-shooter': [
+        { name: 'SharpShot', score: 640 },
+        { name: 'BubblePop', score: 490 },
+        { name: 'AimTrue', score: 320 }
+      ],
+      'space-defender': [
+        { name: 'GalaxyCop', score: 2800 },
+        { name: 'StarGuard', score: 1950 },
+        { name: 'WaveClear', score: 1100 }
+      ],
+      'air-hockey': [
+        { name: 'SlickPuck', score: 70 },
+        { name: 'IceKing', score: 50 },
+        { name: 'GoalMaker', score: 40 }
+      ],
+      'archery-master': [
+        { name: 'Hawkeye', score: 920 },
+        { name: 'Bullseye', score: 750 },
+        { name: 'WindReader', score: 510 }
+      ],
+      'road-traffic': [
+        { name: 'FrogLegend', score: 750 },
+        { name: 'CrossMaster', score: 580 },
+        { name: 'LaneDodger', score: 390 }
+      ],
+      'sushi-spin': [
+        { name: 'PerfectDrop', score: 980 },
+        { name: 'SpinMaster', score: 720 },
+        { name: 'SushiChef', score: 450 }
+      ],
+      'match-3-candy': [
+        { name: 'CandyCrush', score: 2400 },
+        { name: 'SwapKing', score: 1800 },
+        { name: 'ChainBlast', score: 1100 }
+      ],
+      'merge-puzzle': [
+        { name: 'GemForge', score: 3200 },
+        { name: 'CrownSeeker', score: 2100 },
+        { name: 'TierClimber', score: 1400 }
+      ],
+      'math-mahjong': [
+        { name: 'MathWiz', score: 1850 },
+        { name: 'SumClear', score: 1320 },
+        { name: 'TileMatch', score: 890 }
+      ],
+      'pixel-painter': [
+        { name: 'NeonArtist', score: 1950 },
+        { name: 'PixelPro', score: 1600 },
+        { name: 'GridPainter', score: 1100 }
+      ],
+      'platform-jumper': [
+        { name: 'SkyClimber', score: 420 },
+        { name: 'JumpKing', score: 310 },
+        { name: 'PlatPro', score: 220 }
+      ],
+      'idle-miner': [
+        { name: 'OreMogul', score: 12500 },
+        { name: 'CrystalBoss', score: 8200 },
+        { name: 'DrillKing', score: 4600 }
+      ],
+      'merge-restaurant': [
+        { name: 'TopChef', score: 1850 },
+        { name: 'OrderKing', score: 1240 },
+        { name: 'MergeGuru', score: 780 }
+      ],
     };
 
-    // fill dummy scores for other non-playable games just for immersion
+    // fill dummy scores for any remaining games
     gamesData.forEach(game => {
       if (!initialScores[game.id]) {
         initialScores[game.id] = [

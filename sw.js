@@ -1,6 +1,9 @@
-const CACHE_NAME = 'kids-playzone-v6';
+const CACHE_NAME = 'kids-playzone-v9';
 const ASSETS = [
+  './games.html',
   './index.html',
+  './kids_gaming_hero.png',
+  './kids_mascot.png',
   './style.css',
   './games-data.js',
   './app.js',
@@ -10,7 +13,22 @@ const ASSETS = [
   './play/stack-tower.js',
   './play/reflex-racer.js',
   './play/retro-snake.js',
-  './play/endless-runner.js'
+  './play/endless-runner.js',
+  './play/balloon-pop.js',
+  './play/word-search.js',
+  './play/bubble-shooter.js',
+  './play/space-defender.js',
+  './play/air-hockey.js',
+  './play/archery-master.js',
+  './play/road-traffic.js',
+  './play/sushi-spin.js',
+  './play/match-3-candy.js',
+  './play/merge-puzzle.js',
+  './play/math-mahjong.js',
+  './play/pixel-painter.js',
+  './play/platform-jumper.js',
+  './play/idle-miner.js',
+  './play/merge-restaurant.js'
 ];
 
 // Install Event

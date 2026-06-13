@@ -59,7 +59,7 @@ const gamesData = [
     mechanics: "Drag, match, and combine.",
     difficulty: "Medium",
     rating: 4.5,
-    playable: false,
+    playable: true,
     color: "var(--neon-yellow)",
     icon: "💎",
     accent: "#ffea00"
@@ -72,7 +72,7 @@ const gamesData = [
     mechanics: "Clicker, incremental progress.",
     difficulty: "Easy",
     rating: 4.4,
-    playable: false,
+    playable: true,
     color: "var(--neon-cyan)",
     icon: "⛏️",
     accent: "#00f0ff"
@@ -85,7 +85,7 @@ const gamesData = [
     mechanics: "Grid matching and swap mechanics.",
     difficulty: "Medium",
     rating: 4.7,
-    playable: false,
+    playable: true,
     color: "var(--neon-pink)",
     icon: "🍬",
     accent: "#ff007f"
@@ -98,7 +98,7 @@ const gamesData = [
     mechanics: "Aiming and physics-based shooting.",
     difficulty: "Medium",
     rating: 4.6,
-    playable: false,
+    playable: true,
     color: "var(--neon-lime)",
     icon: "🔮",
     accent: "#39ff14"
@@ -111,7 +111,7 @@ const gamesData = [
     mechanics: "Horizontal movement and continuous shooting.",
     difficulty: "Hard",
     rating: 4.8,
-    playable: false,
+    playable: true,
     color: "var(--neon-pink)",
     icon: "🛸",
     accent: "#ff007f"
@@ -124,7 +124,7 @@ const gamesData = [
     mechanics: "Grid swipe selection of words.",
     difficulty: "Easy",
     rating: 4.3,
-    playable: false,
+    playable: true,
     color: "var(--neon-yellow)",
     icon: "🔍",
     accent: "#ffea00"
@@ -137,7 +137,7 @@ const gamesData = [
     mechanics: "Match sums to clear matching tiles.",
     difficulty: "Medium",
     rating: 4.2,
-    playable: false,
+    playable: true,
     color: "var(--neon-purple)",
     icon: "🀄",
     accent: "#b026ff"
@@ -150,7 +150,7 @@ const gamesData = [
     mechanics: "Touch or mouse paddle control.",
     difficulty: "Medium",
     rating: 4.5,
-    playable: false,
+    playable: true,
     color: "var(--neon-cyan)",
     icon: "🏒",
     accent: "#00f0ff"
@@ -163,7 +163,7 @@ const gamesData = [
     mechanics: "Drag to pull back, aim, and release.",
     difficulty: "Medium",
     rating: 4.6,
-    playable: false,
+    playable: true,
     color: "var(--neon-lime)",
     icon: "🏹",
     accent: "#39ff14"
@@ -176,7 +176,7 @@ const gamesData = [
     mechanics: "Tap to drop on a spinning disk.",
     difficulty: "Easy",
     rating: 4.4,
-    playable: false,
+    playable: true,
     color: "var(--neon-pink)",
     icon: "🍣",
     accent: "#ff007f"
@@ -189,7 +189,7 @@ const gamesData = [
     mechanics: "Jump-and-run side-scroller layout.",
     difficulty: "Hard",
     rating: 4.7,
-    playable: false,
+    playable: true,
     color: "var(--neon-purple)",
     icon: "🧗",
     accent: "#b026ff"
@@ -202,7 +202,7 @@ const gamesData = [
     mechanics: "Rapid tapping and combo grouping.",
     difficulty: "Easy",
     rating: 4.3,
-    playable: false,
+    playable: true,
     color: "var(--neon-yellow)",
     icon: "🎈",
     accent: "#ffea00"
@@ -215,7 +215,7 @@ const gamesData = [
     mechanics: "Color picker and grid filling.",
     difficulty: "Easy",
     rating: 4.5,
-    playable: false,
+    playable: true,
     color: "var(--neon-cyan)",
     icon: "🎨",
     accent: "#00f0ff"
@@ -228,7 +228,7 @@ const gamesData = [
     mechanics: "Grid merging and recipe progression.",
     difficulty: "Medium",
     rating: 4.6,
-    playable: false,
+    playable: true,
     color: "var(--neon-lime)",
     icon: "🍳",
     accent: "#39ff14"
@@ -241,7 +241,7 @@ const gamesData = [
     mechanics: "Tap/swipe to step through lanes.",
     difficulty: "Medium",
     rating: 4.4,
-    playable: false,
+    playable: true,
     color: "var(--neon-purple)",
     icon: "🚶",
     accent: "#b026ff"
