@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kids-playzone-v9';
+const CACHE_NAME = 'kids-playzone-v10';
 const ASSETS = [
   './games.html',
   './index.html',
@@ -28,7 +28,11 @@ const ASSETS = [
   './play/pixel-painter.js',
   './play/platform-jumper.js',
   './play/idle-miner.js',
-  './play/merge-restaurant.js'
+  './play/merge-restaurant.js',
+  './play/block-blitz.js',
+  './play/slide-puzzle.js',
+  './play/knife-throw.js',
+  './play/flow-connect.js'
 ];
 
 // Install Event

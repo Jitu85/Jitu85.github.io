@@ -179,42 +179,120 @@ window.initMatch3Candy = function(canvas, onGameOver, onScoreUpdate) {
   }
 
   let dragStart = null;
-  canvas.addEventListener('mousedown', (e) => {
+  let dragStartX = 0;
+  let dragStartY = 0;
+
+  function getCanvasCoords(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
+    const x = (clientX - rect.left) * (W / rect.width);
+    const y = (clientY - rect.top) * (H / rect.height);
+    return { x, y };
+  }
+
+  function handlePointerDown(x, y) {
     const cell = cellFromXY(x, y);
-    if (cell) { dragStart = cell; selected = cell; }
-  });
-  canvas.addEventListener('mouseup', (e) => {
-    if (!dragStart) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
-    const cell = cellFromXY(x, y);
-    if (cell && (cell.r !== dragStart.r || cell.c !== dragStart.c)) {
-      swap(dragStart.r, dragStart.c, cell.r, cell.c);
+    if (!cell) return;
+
+    dragStartX = x;
+    dragStartY = y;
+    dragStart = cell;
+
+    if (selected === null) {
+      selected = cell;
+    } else {
+      if (selected.r === cell.r && selected.c === cell.c) {
+        selected = null;
+      } else if (Math.abs(selected.r - cell.r) + Math.abs(selected.c - cell.c) === 1) {
+        swap(selected.r, selected.c, cell.r, cell.c);
+        selected = null;
+        dragStart = null;
+      } else {
+        selected = cell;
+      }
     }
-    dragStart = null; selected = null;
+  }
+
+  function handlePointerMove(x, y) {
+    if (!dragStart) return;
+
+    const dx = x - dragStartX;
+    const dy = y - dragStartY;
+    const threshold = CELL * 0.4;
+
+    if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+      let tr = dragStart.r;
+      let tc = dragStart.c;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        tc += (dx > 0) ? 1 : -1;
+      } else {
+        tr += (dy > 0) ? 1 : -1;
+      }
+
+      if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) {
+        swap(dragStart.r, dragStart.c, tr, tc);
+      }
+      dragStart = null;
+      selected = null;
+    }
+  }
+
+  function handlePointerUp(x, y) {
+    if (dragStart) {
+      const dx = x - dragStartX;
+      const dy = y - dragStartY;
+      const threshold = CELL * 0.4;
+      if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+        let tr = dragStart.r;
+        let tc = dragStart.c;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          tc += (dx > 0) ? 1 : -1;
+        } else {
+          tr += (dy > 0) ? 1 : -1;
+        }
+        if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) {
+          swap(dragStart.r, dragStart.c, tr, tc);
+        }
+        selected = null;
+      }
+    }
+    dragStart = null;
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    const { x, y } = getCanvasCoords(e.clientX, e.clientY);
+    handlePointerDown(x, y);
   });
+
+  canvas.addEventListener('mousemove', (e) => {
+    const { x, y } = getCanvasCoords(e.clientX, e.clientY);
+    handlePointerMove(x, y);
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    const { x, y } = getCanvasCoords(e.clientX, e.clientY);
+    handlePointerUp(x, y);
+  });
+
   canvas.addEventListener('touchstart', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches[0].clientX - rect.left) * (W / rect.width);
-    const y = (e.touches[0].clientY - rect.top) * (H / rect.height);
-    const cell = cellFromXY(x, y);
-    if (cell) { dragStart = cell; selected = cell; }
+    const { x, y } = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
+    handlePointerDown(x, y);
     e.preventDefault();
   }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    const { x, y } = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
+    handlePointerMove(x, y);
+    e.preventDefault();
+  }, { passive: false });
+
   canvas.addEventListener('touchend', (e) => {
-    if (!dragStart) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.changedTouches[0].clientX - rect.left) * (W / rect.width);
-    const y = (e.changedTouches[0].clientY - rect.top) * (H / rect.height);
-    const cell = cellFromXY(x, y);
-    if (cell && (cell.r !== dragStart.r || cell.c !== dragStart.c)) {
-      swap(dragStart.r, dragStart.c, cell.r, cell.c);
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      const { x, y } = getCanvasCoords(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      handlePointerUp(x, y);
+    } else {
+      dragStart = null;
     }
-    dragStart = null; selected = null;
     e.preventDefault();
   }, { passive: false });
 
@@ -252,6 +330,11 @@ window.initMatch3Candy = function(canvas, onGameOver, onScoreUpdate) {
         ctx.beginPath();
         ctx.roundRect(x + 2, y + 2, CELL - 4, CELL - 4, 6);
         ctx.fill();
+        if (isSelected) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
 
         if (col === -1) continue;
 
@@ -320,7 +403,7 @@ window.initMatch3Candy = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.font = "11px 'Space Grotesk', sans-serif";
     ctx.textAlign = 'right';
-    ctx.fillText('DRAG GEMS TO SWAP', W - 10, H - 8);
+    ctx.fillText('TAP OR DRAG GEMS TO SWAP', W - 10, H - 8);
     ctx.textAlign = 'left';
   }
 

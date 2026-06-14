@@ -258,6 +258,58 @@ const gamesData = [
     color: "var(--neon-cyan)",
     icon: "🐍",
     accent: "#00f0ff"
+  },
+  {
+    id: "block-blitz",
+    title: "Block Blitz",
+    category: "Arcade",
+    description: "Clear lines with falling blocks in this neon-infused classic.",
+    mechanics: "Rotate and drop falling blocks.",
+    difficulty: "Medium",
+    rating: 4.8,
+    playable: true,
+    color: "var(--neon-purple)",
+    icon: "🧱",
+    accent: "#b026ff"
+  },
+  {
+    id: "slide-puzzle",
+    title: "Slide Puzzle",
+    category: "Puzzle",
+    description: "Slide the tiles to order the numbers 1-15.",
+    mechanics: "Tap adjacent tiles to swap with the empty space.",
+    difficulty: "Medium",
+    rating: 4.5,
+    playable: true,
+    color: "var(--neon-cyan)",
+    icon: "🧩",
+    accent: "#00f0ff"
+  },
+  {
+    id: "knife-throw",
+    title: "Knife Throw",
+    category: "Arcade",
+    description: "Time your throws to stick knives into the rotating target without overlapping.",
+    mechanics: "Tap to throw a knife.",
+    difficulty: "Hard",
+    rating: 4.7,
+    playable: true,
+    color: "var(--neon-pink)",
+    icon: "🗡️",
+    accent: "#ff007f"
+  },
+  {
+    id: "flow-connect",
+    title: "Flow Connect",
+    category: "Puzzle",
+    description: "Connect matching colors without crossing paths.",
+    mechanics: "Drag to draw paths between endpoints.",
+    difficulty: "Easy",
+    rating: 4.6,
+    playable: true,
+    color: "var(--neon-lime)",
+    icon: "🔌",
+    accent: "#39ff14"
   }
 ];
 

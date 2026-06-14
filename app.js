@@ -395,6 +395,18 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (gameId === 'merge-restaurant' && typeof window.initMergeRestaurant === 'function') {
       window.initMergeRestaurant(canvas, onGameOver, onScoreUpdate);
       activeGameInstance = { destroy: window.destroyMergeRestaurant };
+    } else if (gameId === 'block-blitz' && typeof window.initBlockBlitz === 'function') {
+      window.initBlockBlitz(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyBlockBlitz };
+    } else if (gameId === 'slide-puzzle' && typeof window.initSlidePuzzle === 'function') {
+      window.initSlidePuzzle(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroySlidePuzzle };
+    } else if (gameId === 'knife-throw' && typeof window.initKnifeThrow === 'function') {
+      window.initKnifeThrow(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyKnifeThrow };
+    } else if (gameId === 'flow-connect' && typeof window.initFlowConnect === 'function') {
+      window.initFlowConnect(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyFlowConnect };
     }
   }
 
