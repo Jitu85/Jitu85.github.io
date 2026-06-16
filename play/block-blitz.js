@@ -1,6 +1,15 @@
 window.initBlockBlitz = function(canvas, onGameOver, onScoreUpdate) {
   const ctx = canvas.getContext('2d');
   
+  const W = 640;
+  const H = 480;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
+
   const COLS = 10;
   const ROWS = 20;
   let BLOCK_SIZE = 32;
@@ -177,7 +186,10 @@ window.initBlockBlitz = function(canvas, onGameOver, onScoreUpdate) {
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.restore();
     
     // Draw background grid
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -218,11 +230,11 @@ window.initBlockBlitz = function(canvas, onGameOver, onScoreUpdate) {
   let offsetX = 0;
   let offsetY = 0;
   function resize() {
-    const cw = canvas.width;
-    const ch = canvas.height;
+    const cw = W;
+    const ch = H;
     
     BLOCK_SIZE = Math.min(cw / COLS, ch / ROWS);
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Reset transform to dpr scale
     
     // Center it horizontally
     offsetX = (cw - COLS * BLOCK_SIZE) / 2;
@@ -269,8 +281,8 @@ window.initBlockBlitz = function(canvas, onGameOver, onScoreUpdate) {
     
     // Only accept input inside the canvas bounds
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
     const cx = (clientX - rect.left) * scaleX;
     const cy = (clientY - rect.top) * scaleY;
 

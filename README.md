@@ -11,5 +11,5 @@ Welcome to **Kid's PlayZone**, a premium collection of casual and hypercasual br
 - **PWA Support**: Installable on desktop/mobile and fully playable offline using Service Worker caching.
 - **Dynamic CSS Theme**: Beautifully stylized cyberpunk dark theme with glowing neon cards and fluid transitions.
 - **Local Leaderboards**: Compete against pre-populated scores and save your own run records in `localStorage`.
-- **Search & Categories**: Filter through the 20-game catalog using tags and instant search matching.
+- **Search & Categories**: Filter through the catalog of more than 30 games using tags and instant search matching.
 

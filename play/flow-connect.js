@@ -1,6 +1,15 @@
 window.initFlowConnect = function(canvas, onGameOver, onScoreUpdate) {
   const ctx = canvas.getContext('2d');
   
+  const W = 640;
+  const H = 480;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
+
   const SIZE = 5;
   let TILE_SIZE = 60;
   let offsetX = 0;
@@ -38,7 +47,7 @@ window.initFlowConnect = function(canvas, onGameOver, onScoreUpdate) {
   let activeColorIdx = -1;
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, W, H);
     
     // Draw Grid
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
@@ -88,13 +97,13 @@ window.initFlowConnect = function(canvas, onGameOver, onScoreUpdate) {
        ctx.fillStyle = '#00FF00';
        ctx.font = 'bold 30px Arial';
        ctx.textAlign = 'center';
-       ctx.fillText('LEVEL CLEARED!', canvas.width / 2, offsetY + SIZE * TILE_SIZE + 40);
+       ctx.fillText('LEVEL CLEARED!', W / 2, offsetY + SIZE * TILE_SIZE + 40);
     }
   }
 
   function resize() {
-    const cw = canvas.width;
-    const ch = canvas.height;
+    const cw = W;
+    const ch = H;
     
     TILE_SIZE = Math.min(cw * 0.8 / SIZE, ch * 0.7 / SIZE);
     
@@ -139,8 +148,8 @@ window.initFlowConnect = function(canvas, onGameOver, onScoreUpdate) {
     e.preventDefault();
     if(isGameOver) return;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const x = (clientX - rect.left) * scaleX;
@@ -172,8 +181,8 @@ window.initFlowConnect = function(canvas, onGameOver, onScoreUpdate) {
     e.preventDefault();
     if(isGameOver || activeColorIdx === -1) return;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const x = (clientX - rect.left) * scaleX;

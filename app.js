@@ -95,6 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     filteredGames.forEach(game => {
+      const globalIndex = gamesData.indexOf(game) + 1;
+      const displayIndex = globalIndex < 10 ? '0' + globalIndex : globalIndex;
+
       const card = document.createElement('div');
       card.className = 'game-card';
       card.style.setProperty('--card-accent', game.color);
@@ -107,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.setProperty('--card-accent-rgb', accentRgb);
 
       card.innerHTML = `
+        <div class="card-number-circle">${displayIndex}</div>
         <div class="card-top">
           <div class="card-icon-wrapper">${game.icon}</div>
           <span class="card-badge ${game.playable ? 'badge-playable' : ''}">${game.playable ? 'Playable' : 'Demo'}</span>
@@ -407,6 +411,24 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (gameId === 'flow-connect' && typeof window.initFlowConnect === 'function') {
       window.initFlowConnect(canvas, onGameOver, onScoreUpdate);
       activeGameInstance = { destroy: window.destroyFlowConnect };
+    } else if (gameId === 'neon-breakout' && typeof window.initNeonBreakout === 'function') {
+      window.initNeonBreakout(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyNeonBreakout };
+    } else if (gameId === 'asteroid-blast' && typeof window.initAsteroidBlast === 'function') {
+      window.initAsteroidBlast(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyAsteroidBlast };
+    } else if (gameId === 'memory-match' && typeof window.initMemoryMatch === 'function') {
+      window.initMemoryMatch(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyMemoryMatch };
+    } else if (gameId === 'neon-pinball' && typeof window.initNeonPinball === 'function') {
+      window.initNeonPinball(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyNeonPinball };
+    } else if (gameId === 'dodge-blitz' && typeof window.initDodgeBlitz === 'function') {
+      window.initDodgeBlitz(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyDodgeBlitz };
+    } else if (gameId === 'circuit-breaker' && typeof window.initCircuitBreaker === 'function') {
+      window.initCircuitBreaker(canvas, onGameOver, onScoreUpdate);
+      activeGameInstance = { destroy: window.destroyCircuitBreaker };
     }
   }
 
@@ -569,6 +591,36 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'TopChef', score: 1850 },
         { name: 'OrderKing', score: 1240 },
         { name: 'MergeGuru', score: 780 }
+      ],
+      'neon-breakout': [
+        { name: 'BrickBuster', score: 4800 },
+        { name: 'PaddleKing', score: 3200 },
+        { name: 'ComboSmash', score: 1950 }
+      ],
+      'asteroid-blast': [
+        { name: 'OrbitAce', score: 3600 },
+        { name: 'RockSplitter', score: 2400 },
+        { name: 'VoidPilot', score: 1100 }
+      ],
+      'memory-match': [
+        { name: 'MindSharp', score: 1800 },
+        { name: 'PairFinder', score: 1200 },
+        { name: 'GridGenius', score: 750 }
+      ],
+      'neon-pinball': [
+        { name: 'FlipMaster', score: 12400 },
+        { name: 'BumperKing', score: 8800 },
+        { name: 'TiltPro', score: 5200 }
+      ],
+      'dodge-blitz': [
+        { name: 'PhantomDodge', score: 980 },
+        { name: 'QuickShift', score: 720 },
+        { name: 'NeonGhost', score: 450 }
+      ],
+      'circuit-breaker': [
+        { name: 'WireWizard', score: 8500 },
+        { name: 'RotatePro', score: 6000 },
+        { name: 'CircuitSage', score: 3500 }
       ],
     };
 

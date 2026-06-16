@@ -310,8 +310,87 @@ const gamesData = [
     color: "var(--neon-lime)",
     icon: "🔌",
     accent: "#39ff14"
+  },
+  {
+    id: "neon-breakout",
+    title: "Neon Breakout",
+    category: "Arcade",
+    description: "Bounce a glowing energy ball off your paddle to smash neon holographic bricks. Catch power-up drops for wide paddle, multi-ball, and slow-time effects!",
+    mechanics: "Move mouse or touch to control the paddle. Click or tap to launch the ball.",
+    difficulty: "Medium",
+    rating: 4.7,
+    playable: true,
+    color: "var(--neon-cyan)",
+    icon: "🏓",
+    accent: "#00f0ff"
+  },
+  {
+    id: "asteroid-blast",
+    title: "Asteroid Blast",
+    category: "Action",
+    description: "Pilot your ship in free 360° space flight. Blast drifting asteroids that split into smaller fragments. Wrap around the edges and survive every sector!",
+    mechanics: "Arrow keys to rotate and thrust. Space to fire. On touch: tap left/right zones to rotate, center to thrust, top to fire.",
+    difficulty: "Hard",
+    rating: 4.8,
+    playable: true,
+    color: "var(--neon-pink)",
+    icon: "💥",
+    accent: "#ff007f"
+  },
+  {
+    id: "memory-match",
+    title: "Neon Memory Grid",
+    category: "Puzzle",
+    description: "Flip glowing cards on a 4×4 grid to find matching symbol pairs before the timer runs out. Each round the clock ticks faster — how sharp is your memory?",
+    mechanics: "Click or tap cards to flip them. Find all 8 pairs to clear the round.",
+    difficulty: "Easy",
+    rating: 4.5,
+    playable: true,
+    color: "var(--neon-purple)",
+    icon: "🧠",
+    accent: "#b026ff"
+  },
+  {
+    id: "neon-pinball",
+    title: "Neon Pinball",
+    category: "Arcade",
+    description: "Launch the glowing ball, activate neon bumpers, hit side targets, and rack up multipliers in this classic pinball reimagined with cyberpunk style!",
+    mechanics: "Z or Left Arrow = left flipper. X or Right Arrow = right flipper. On touch: tap left or right half of screen.",
+    difficulty: "Medium",
+    rating: 4.6,
+    playable: true,
+    color: "var(--neon-yellow)",
+    icon: "🎰",
+    accent: "#ffea00"
+  },
+  {
+    id: "dodge-blitz",
+    title: "Dodge Blitz",
+    category: "Action",
+    description: "Move freely in 2D space while glowing projectiles stream in from all four edges with increasing speed and homing. Grab shields and speed boosts to survive longer!",
+    mechanics: "Move mouse or touch to control your character. Collect power-ups — shield (🛡️) and speed boost (⚡).",
+    difficulty: "Hard",
+    rating: 4.7,
+    playable: true,
+    color: "var(--neon-lime)",
+    icon: "⚡",
+    accent: "#39ff14"
+  },
+  {
+    id: "circuit-breaker",
+    title: "Circuit Breaker",
+    category: "Puzzle",
+    description: "Rotate pipe tiles on a 5×5 grid to connect the power source to the receiver. Every puzzle is solvable — complete the circuit to trigger a glowing electric cascade!",
+    mechanics: "Click or tap a tile to rotate it 90° clockwise. Connect ⚡ to 🔌 to complete the circuit.",
+    difficulty: "Medium",
+    rating: 4.6,
+    playable: true,
+    color: "var(--neon-purple)",
+    icon: "🔋",
+    accent: "#b026ff"
   }
 ];
+
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = gamesData;

@@ -1,6 +1,15 @@
 window.initSlidePuzzle = function(canvas, onGameOver, onScoreUpdate) {
   const ctx = canvas.getContext('2d');
   
+  const W = 640;
+  const H = 480;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
+
   const SIZE = 4;
   let TILE_SIZE = 80;
   let offsetX = 0;
@@ -98,7 +107,7 @@ window.initSlidePuzzle = function(canvas, onGameOver, onScoreUpdate) {
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, W, H);
     
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
@@ -143,18 +152,18 @@ window.initSlidePuzzle = function(canvas, onGameOver, onScoreUpdate) {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`Moves: ${moves}`, canvas.width / 2, offsetY - 20);
+    ctx.fillText(`Moves: ${moves}`, W / 2, offsetY - 20);
     
     if(isGameOver) {
        ctx.fillStyle = '#00FF00';
        ctx.font = 'bold 30px Arial';
-       ctx.fillText('SOLVED!', canvas.width / 2, offsetY + SIZE * TILE_SIZE + 40);
+       ctx.fillText('SOLVED!', W / 2, offsetY + SIZE * TILE_SIZE + 40);
     }
   }
 
   function resize() {
-    const cw = canvas.width;
-    const ch = canvas.height;
+    const cw = W;
+    const ch = H;
     
     // Fit the grid in the screen with some margin
     TILE_SIZE = Math.min(cw * 0.8 / SIZE, ch * 0.7 / SIZE);
@@ -171,8 +180,8 @@ window.initSlidePuzzle = function(canvas, onGameOver, onScoreUpdate) {
   const handlePointerDown = (e) => {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
     
     let clientX, clientY;
     if (e.touches) {
