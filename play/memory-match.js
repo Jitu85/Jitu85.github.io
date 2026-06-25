@@ -71,7 +71,11 @@ window.initMemoryMatch = function(canvas, onGameOver, onScoreUpdate) {
   canvas.addEventListener('mousedown', onClick);
   canvas.addEventListener('touchstart', onClick, { passive: false });
 
-  window.destroyMemoryMatch = function() { active = false; };
+  window.destroyMemoryMatch = function() {
+    active = false;
+    canvas.removeEventListener('mousedown', onClick);
+    canvas.removeEventListener('touchstart', onClick);
+  };
 
   function update() {
     frame++;

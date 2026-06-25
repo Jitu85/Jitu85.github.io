@@ -188,14 +188,28 @@ window.initPixelPainter = function(canvas, onGameOver, onScoreUpdate) {
     return { r, c };
   }
 
-  canvas.addEventListener('mousedown', (e) => { painting = true; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); });
-  canvas.addEventListener('mousemove', (e) => { if (!painting) return; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); });
-  canvas.addEventListener('mouseup', () => { painting = false; });
-  canvas.addEventListener('touchstart', (e) => { painting = true; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); e.preventDefault(); }, { passive: false });
-  canvas.addEventListener('touchmove', (e) => { if (!painting) return; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); e.preventDefault(); }, { passive: false });
-  canvas.addEventListener('touchend', () => { painting = false; });
+  function onMouseDown(e) { painting = true; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); }
+  function onMouseMove(e) { if (!painting) return; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); }
+  function onPointerUp() { painting = false; }
+  function onTouchStart(e) { painting = true; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); e.preventDefault(); }
+  function onTouchMove(e) { if (!painting) return; const cell = getCell(e); if (cell) paintCell(cell.r, cell.c); e.preventDefault(); }
 
-  window.destroyPixelPainter = function() { active = false; };
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onPointerUp);
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onPointerUp);
+
+  window.destroyPixelPainter = function() {
+    active = false;
+    canvas.removeEventListener('mousedown', onMouseDown);
+    canvas.removeEventListener('mousemove', onMouseMove);
+    canvas.removeEventListener('mouseup', onPointerUp);
+    canvas.removeEventListener('touchstart', onTouchStart);
+    canvas.removeEventListener('touchmove', onTouchMove);
+    canvas.removeEventListener('touchend', onPointerUp);
+  };
 
   function update() {
     frame++;

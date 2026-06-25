@@ -134,45 +134,52 @@ window.initMergeRestaurant = function(canvas, onGameOver, onScoreUpdate) {
     return { x: (src.clientX - rect.left) * (W / rect.width), y: (src.clientY - rect.top) * (H / rect.height) };
   }
 
-  canvas.addEventListener('mousedown', (e) => {
+  function onMouseDown(e) {
     const { x, y } = getPointerPos(e);
     const cell = cellFromXY(x, y);
     if (cell && grid[cell.r][cell.c]) { dragging = cell; dragPos = { x, y }; }
-  });
-  canvas.addEventListener('mousemove', (e) => { if (dragging) dragPos = getPointerPos(e); });
-  canvas.addEventListener('mouseup', (e) => {
-    if (!dragging) return;
-    const { x, y } = getPointerPos(e);
-    // Check if dropped on customer (top area)
-    if (y < GRID_Y - 10) {
-      serveCustomer(dragging.r, dragging.c);
-    } else {
-      const cell = cellFromXY(x, y);
-      if (cell && (cell.r !== dragging.r || cell.c !== dragging.c)) tryMerge(dragging, cell);
-    }
-    dragging = null;
-  });
-  canvas.addEventListener('touchstart', (e) => {
-    const { x, y } = getPointerPos(e);
-    const cell = cellFromXY(x, y);
-    if (cell && grid[cell.r][cell.c]) { dragging = cell; dragPos = { x, y }; }
-    e.preventDefault();
-  }, { passive: false });
-  canvas.addEventListener('touchmove', (e) => { if (dragging) dragPos = getPointerPos(e); e.preventDefault(); }, { passive: false });
-  canvas.addEventListener('touchend', (e) => {
-    if (!dragging) return;
-    const { x, y } = getPointerPos(e);
-    if (y < GRID_Y - 10) {
-      serveCustomer(dragging.r, dragging.c);
-    } else {
-      const cell = cellFromXY(x, y);
-      if (cell && (cell.r !== dragging.r || cell.c !== dragging.c)) tryMerge(dragging, cell);
-    }
-    dragging = null;
-    e.preventDefault();
-  }, { passive: false });
+  }
 
-  window.destroyMergeRestaurant = function() { active = false; };
+  function onMouseMove(e) { if (dragging) dragPos = getPointerPos(e); }
+
+  function finishDrag(e) {
+    if (!dragging) return;
+    const { x, y } = getPointerPos(e);
+    if (y < GRID_Y - 10) {
+      serveCustomer(dragging.r, dragging.c);
+    } else {
+      const cell = cellFromXY(x, y);
+      if (cell && (cell.r !== dragging.r || cell.c !== dragging.c)) tryMerge(dragging, cell);
+    }
+    dragging = null;
+    e.preventDefault?.();
+  }
+
+  function onTouchStart(e) {
+    const { x, y } = getPointerPos(e);
+    const cell = cellFromXY(x, y);
+    if (cell && grid[cell.r][cell.c]) { dragging = cell; dragPos = { x, y }; }
+    e.preventDefault();
+  }
+
+  function onTouchMove(e) { if (dragging) dragPos = getPointerPos(e); e.preventDefault(); }
+
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', finishDrag);
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', finishDrag, { passive: false });
+
+  window.destroyMergeRestaurant = function() {
+    active = false;
+    canvas.removeEventListener('mousedown', onMouseDown);
+    canvas.removeEventListener('mousemove', onMouseMove);
+    canvas.removeEventListener('mouseup', finishDrag);
+    canvas.removeEventListener('touchstart', onTouchStart);
+    canvas.removeEventListener('touchmove', onTouchMove);
+    canvas.removeEventListener('touchend', finishDrag);
+  };
 
   function update() {
     frame++;

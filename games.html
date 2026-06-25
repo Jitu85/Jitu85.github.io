@@ -29,7 +29,7 @@
   <div class="bg-glow-blob purple"></div>
 
   <header>
-    <a href="#" class="logo">
+    <a href="games.html" class="logo">
       <span>KID'S</span> PLAYZONE
     </a>
     <div class="nav-actions">
@@ -42,8 +42,8 @@
       <button id="mute-btn" class="back-btn" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-secondary);">
         <i class="fa-solid fa-volume-high"></i>
       </button>
-      <button onclick="window.close();" class="back-btn" style="background:none; border:1px solid var(--border-color); cursor:pointer;">
-        <i class="fa-solid fa-xmark"></i> Close
+      <button id="close-btn" class="back-btn" style="background:none; border:1px solid var(--border-color); cursor:pointer;">
+        <i class="fa-solid fa-xmark"></i> Exit
       </button>
     </div>
   </header>
@@ -112,6 +112,14 @@
   <script src="app.js"></script>
   <script src="play/particle-grid.js"></script>
   <script>
+    document.getElementById('close-btn')?.addEventListener('click', () => {
+      if (window.opener) {
+        window.close();
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+
     // Register Service Worker for offline play (PWA)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

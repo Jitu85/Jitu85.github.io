@@ -140,13 +140,28 @@ window.initSushiSpin = function(canvas, onGameOver, onScoreUpdate) {
     }
   }
 
-  canvas.addEventListener('click', dropSushi);
-  canvas.addEventListener('touchstart', (e) => { dropSushi(); e.preventDefault(); }, { passive: false });
-  window.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); dropSushi(); } });
+  function handleTouchStart(e) { dropSushi(); e.preventDefault(); }
+  function handleKeydown(e) {
+    if (e.key === ' ' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      dropSushi();
+    }
+  }
 
-  window.destroySpinSushi = function() { active = false; };
+  canvas.addEventListener('click', dropSushi);
+  canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+  window.addEventListener('keydown', handleKeydown);
+
+  function destroy() {
+    active = false;
+    canvas.removeEventListener('click', dropSushi);
+    canvas.removeEventListener('touchstart', handleTouchStart);
+    window.removeEventListener('keydown', handleKeydown);
+  }
+
+  window.destroySpinSushi = destroy;
   // Register with proper name
-  window.destroySushiSpin = function() { active = false; };
+  window.destroySushiSpin = destroy;
 
   function update() {
     frame++;

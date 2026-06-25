@@ -125,10 +125,16 @@ window.initMathMahjong = function(canvas, onGameOver, onScoreUpdate) {
     }
   }
 
-  canvas.addEventListener('click', handleClick);
-  canvas.addEventListener('touchstart', (e) => { handleClick(e); e.preventDefault(); }, { passive: false });
+  function handleTouchStart(e) { handleClick(e); e.preventDefault(); }
 
-  window.destroyMathMahjong = function() { active = false; };
+  canvas.addEventListener('click', handleClick);
+  canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+
+  window.destroyMathMahjong = function() {
+    active = false;
+    canvas.removeEventListener('click', handleClick);
+    canvas.removeEventListener('touchstart', handleTouchStart);
+  };
 
   function update() {
     frame++;

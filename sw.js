@@ -1,7 +1,10 @@
-const CACHE_NAME = 'kids-playzone-v11';
+const CACHE_NAME = 'kids-playzone-v12';
+const RUNTIME_CACHE = 'kids-playzone-runtime-v1';
 const ASSETS = [
   './games.html',
   './index.html',
+  './terms.html',
+  './privacy.html',
   './kids_gaming_hero.png',
   './kids_mascot.png',
   './style.css',
@@ -58,7 +61,7 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== RUNTIME_CACHE) {
             console.log('[Service Worker] Removing old cache', key);
             return caches.delete(key);
           }
@@ -68,15 +71,37 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Fetch Event
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(e.request).catch(() => {
-        // Fallback or silence error if offline and resource is not in cache
+
+      return fetch(e.request).then((networkResponse) => {
+        if (networkResponse && (networkResponse.ok || networkResponse.type === 'opaque')) {
+          const responseToCache = networkResponse.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(e.request, responseToCache));
+        }
+        return networkResponse;
+      }).catch(() => {
+        const accept = e.request.headers.get('accept') || '';
+
+        if (e.request.mode === 'navigate' || accept.includes('text/html')) {
+          return caches.match('./index.html');
+        }
+
+        if (accept.includes('image')) {
+          return caches.match('./kids_gaming_hero.png');
+        }
+
+        return new Response('', {
+          status: 503,
+          statusText: 'Offline',
+          headers: { 'Content-Type': 'text/plain' }
+        });
       });
     })
   );

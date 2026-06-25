@@ -259,34 +259,34 @@ window.initMatch3Candy = function(canvas, onGameOver, onScoreUpdate) {
     dragStart = null;
   }
 
-  canvas.addEventListener('mousedown', (e) => {
+  function onMouseDown(e) {
     const { x, y } = getCanvasCoords(e.clientX, e.clientY);
     handlePointerDown(x, y);
-  });
+  }
 
-  canvas.addEventListener('mousemove', (e) => {
+  function onMouseMove(e) {
     const { x, y } = getCanvasCoords(e.clientX, e.clientY);
     handlePointerMove(x, y);
-  });
+  }
 
-  canvas.addEventListener('mouseup', (e) => {
+  function onMouseUp(e) {
     const { x, y } = getCanvasCoords(e.clientX, e.clientY);
     handlePointerUp(x, y);
-  });
+  }
 
-  canvas.addEventListener('touchstart', (e) => {
+  function onTouchStart(e) {
     const { x, y } = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
     handlePointerDown(x, y);
     e.preventDefault();
-  }, { passive: false });
+  }
 
-  canvas.addEventListener('touchmove', (e) => {
+  function onTouchMove(e) {
     const { x, y } = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
     handlePointerMove(x, y);
     e.preventDefault();
-  }, { passive: false });
+  }
 
-  canvas.addEventListener('touchend', (e) => {
+  function onTouchEnd(e) {
     if (e.changedTouches && e.changedTouches.length > 0) {
       const { x, y } = getCanvasCoords(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
       handlePointerUp(x, y);
@@ -294,9 +294,24 @@ window.initMatch3Candy = function(canvas, onGameOver, onScoreUpdate) {
       dragStart = null;
     }
     e.preventDefault();
-  }, { passive: false });
+  }
 
-  window.destroyMatch3Candy = function() { active = false; };
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+
+  window.destroyMatch3Candy = function() {
+    active = false;
+    canvas.removeEventListener('mousedown', onMouseDown);
+    canvas.removeEventListener('mousemove', onMouseMove);
+    canvas.removeEventListener('mouseup', onMouseUp);
+    canvas.removeEventListener('touchstart', onTouchStart);
+    canvas.removeEventListener('touchmove', onTouchMove);
+    canvas.removeEventListener('touchend', onTouchEnd);
+  };
 
   function update() {
     frame++;

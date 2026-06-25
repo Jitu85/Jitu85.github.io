@@ -12,6 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeGameInstance = null; // tracking active game destruction callback
   let searchEventTimeout = null; // debounce search events
 
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>\"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '\"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+  }
+
+
   // Pre-populate mock leaderboards in LocalStorage if not present
   initializeLeaderboards();
 
@@ -88,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filteredGames.length === 0) {
       gameGrid.innerHTML = `
         <div style="grid-column: 1/-1; text-align: center; padding: 3rem 0; color: var(--text-secondary);">
-          <p style="font-size: 1.2rem;">No games found matching "${searchQuery}".</p>
+          <p style="font-size: 1.2rem;">No games found matching "${escapeHTML(searchQuery)}".</p>
         </div>
       `;
       return;
@@ -112,16 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div class="card-number-circle">${displayIndex}</div>
         <div class="card-top">
-          <div class="card-icon-wrapper">${game.icon}</div>
+          <div class="card-icon-wrapper">${escapeHTML(game.icon)}</div>
           <span class="card-badge ${game.playable ? 'badge-playable' : ''}">${game.playable ? 'Playable' : 'Demo'}</span>
         </div>
         <div class="card-body">
-          <h3 class="card-title">${game.title}</h3>
-          <p class="card-desc">${game.description}</p>
+          <h3 class="card-title">${escapeHTML(game.title)}</h3>
+          <p class="card-desc">${escapeHTML(game.description)}</p>
         </div>
         <div class="card-footer">
           <span class="card-rating">★ ${game.rating.toFixed(1)}</span>
-          <span class="card-difficulty">${game.difficulty}</span>
+          <span class="card-difficulty">${escapeHTML(game.difficulty)}</span>
         </div>
       `;
 
@@ -158,18 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
       <div class="modal-sidebar">
-        <h2 class="sidebar-title">${game.title}</h2>
+        <h2 class="sidebar-title">${escapeHTML(game.title)}</h2>
         <div class="info-section">
           <div class="info-label">Category</div>
-          <div class="info-value">${game.category}</div>
+          <div class="info-value">${escapeHTML(game.category)}</div>
         </div>
         <div class="info-section">
           <div class="info-label">Difficulty</div>
-          <div class="info-value">${game.difficulty}</div>
+          <div class="info-value">${escapeHTML(game.difficulty)}</div>
         </div>
         <div class="info-section">
           <div class="info-label">Controls</div>
-          <div class="info-value">${game.mechanics}</div>
+          <div class="info-value">${escapeHTML(game.mechanics)}</div>
         </div>
         <div class="info-section" style="flex: 1;">
           <div class="info-label">Top Leaderboard</div>
@@ -192,9 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show start game overlay
       viewport.innerHTML = `
         <div class="game-intro-overlay" id="game-intro">
-          <div class="game-intro-icon">${game.icon}</div>
-          <h1 class="game-intro-title">${game.title}</h1>
-          <p class="game-intro-desc">${game.description}</p>
+          <div class="game-intro-icon">${escapeHTML(game.icon)}</div>
+          <h1 class="game-intro-title">${escapeHTML(game.title)}</h1>
+          <p class="game-intro-desc">${escapeHTML(game.description)}</p>
           <button class="btn btn-primary" id="btn-start-game" style="background:${game.accent}; box-shadow:0 0 15px ${game.accent}80;">
             ⚡ TAP TO PLAY
           </button>
@@ -212,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Game under development panel
       viewport.innerHTML = `
         <div class="game-intro-overlay" style="background:#020207;">
-          <div class="game-intro-icon">${game.icon}</div>
-          <h1 class="game-intro-title" style="color:var(--text-secondary);">${game.title}</h1>
+          <div class="game-intro-icon">${escapeHTML(game.icon)}</div>
+          <h1 class="game-intro-title" style="color:var(--text-secondary);">${escapeHTML(game.title)}</h1>
           <h2 style="font-family:var(--font-display); color:var(--modal-accent); margin-bottom:1rem;">DEMO PREVIEW</h2>
           <p class="game-intro-desc">This title is currently under production by Kid's PlayZone development crew. Stay tuned for the upcoming alpha release!</p>
           <div style="background:rgba(255,255,255,0.03); border:1px dashed var(--border-color); padding:1rem 2rem; border-radius:12px; font-size:0.9rem;">
@@ -445,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <h2 style="color:var(--neon-pink); font-family:var(--font-display); font-size:2.5rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:1px;">GAME OVER</h2>
         <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:1.5rem;">You completed the run with score:</p>
         <div style="font-family:var(--font-display); font-size:4.5rem; font-weight:800; color:#fff; text-shadow:0 0 20px rgba(255,255,255,0.2); margin-bottom:2rem;">
-          ${score}
+          ${escapeHTML(score)}
         </div>
         <div style="display:flex; gap:1rem;">
           <button class="btn btn-primary" id="btn-restart-game" style="background:${game.accent}; box-shadow:0 0 15px ${game.accent}80;">
@@ -638,18 +649,29 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('kids_playzone_leaderboards', JSON.stringify(initialScores));
   }
 
-  function getScoresForGame(gameId) {
+  function readLeaderboardData() {
     const data = localStorage.getItem('kids_playzone_leaderboards');
-    if (!data) return [];
-    const scores = JSON.parse(data);
-    return scores[gameId] || [];
+    if (!data) return {};
+
+    try {
+      const parsed = JSON.parse(data);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (error) {
+      console.warn('Resetting corrupted leaderboard data.', error);
+      localStorage.removeItem('kids_playzone_leaderboards');
+      initializeLeaderboards();
+      return readLeaderboardData();
+    }
+  }
+
+  function getScoresForGame(gameId) {
+    const scores = readLeaderboardData();
+    return Array.isArray(scores[gameId]) ? scores[gameId] : [];
   }
 
   function savePlayerScore(gameId, score) {
-    const data = localStorage.getItem('kids_playzone_leaderboards');
-    if (!data) return;
-    const allScores = JSON.parse(data);
-    const gameScores = allScores[gameId] || [];
+    const allScores = readLeaderboardData();
+    const gameScores = Array.isArray(allScores[gameId]) ? allScores[gameId] : [];
     
     // check if it fits leaderboard or if we should add it
     gameScores.push({ name: 'You (Player)', score: score, isPlayer: true });
@@ -679,8 +701,8 @@ document.addEventListener('DOMContentLoaded', () => {
       row.className = `leaderboard-row ${entry.isPlayer ? 'highlight' : ''}`;
       row.innerHTML = `
         <span class="leaderboard-rank">#${idx + 1}</span>
-        <span class="leaderboard-name">${entry.name}</span>
-        <span class="leaderboard-score">${entry.score}</span>
+        <span class="leaderboard-name">${escapeHTML(entry.name)}</span>
+        <span class="leaderboard-score">${escapeHTML(entry.score)}</span>
       `;
       list.appendChild(row);
     });

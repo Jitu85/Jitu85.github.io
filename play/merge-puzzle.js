@@ -116,20 +116,21 @@ window.initMergePuzzle = function(canvas, onGameOver, onScoreUpdate) {
     return { x: (src.clientX - rect.left) * (W / rect.width), y: (src.clientY - rect.top) * (H / rect.height) };
   }
 
-  canvas.addEventListener('mousedown', (e) => {
+  function onMouseDown(e) {
     const { x, y } = getPointerPos(e);
     const cell = cellFromXY(x, y);
     if (cell && grid[cell.r][cell.c]) {
       dragging = { ...cell };
       dragPos = { x, y };
     }
-  });
-  canvas.addEventListener('mousemove', (e) => {
+  }
+
+  function onMouseMove(e) {
     if (!dragging) return;
-    const p = getPointerPos(e);
-    dragPos = p;
-  });
-  canvas.addEventListener('mouseup', (e) => {
+    dragPos = getPointerPos(e);
+  }
+
+  function onPointerEnd(e) {
     if (!dragging) return;
     const { x, y } = getPointerPos(e);
     const cell = cellFromXY(x, y);
@@ -137,30 +138,38 @@ window.initMergePuzzle = function(canvas, onGameOver, onScoreUpdate) {
       tryMerge(dragging.r, dragging.c, cell.r, cell.c);
     }
     dragging = null;
-  });
-  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault?.();
+  }
+
+  function onTouchStart(e) {
     const { x, y } = getPointerPos(e);
     const cell = cellFromXY(x, y);
     if (cell && grid[cell.r][cell.c]) { dragging = { ...cell }; dragPos = { x, y }; }
     e.preventDefault();
-  }, { passive: false });
-  canvas.addEventListener('touchmove', (e) => {
+  }
+
+  function onTouchMove(e) {
     if (!dragging) return;
     dragPos = getPointerPos(e);
     e.preventDefault();
-  }, { passive: false });
-  canvas.addEventListener('touchend', (e) => {
-    if (!dragging) return;
-    const { x, y } = getPointerPos(e);
-    const cell = cellFromXY(x, y);
-    if (cell && (cell.r !== dragging.r || cell.c !== dragging.c)) {
-      tryMerge(dragging.r, dragging.c, cell.r, cell.c);
-    }
-    dragging = null;
-    e.preventDefault();
-  }, { passive: false });
+  }
 
-  window.destroyMergePuzzle = function() { active = false; };
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onPointerEnd);
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onPointerEnd, { passive: false });
+
+  window.destroyMergePuzzle = function() {
+    active = false;
+    canvas.removeEventListener('mousedown', onMouseDown);
+    canvas.removeEventListener('mousemove', onMouseMove);
+    canvas.removeEventListener('mouseup', onPointerEnd);
+    canvas.removeEventListener('touchstart', onTouchStart);
+    canvas.removeEventListener('touchmove', onTouchMove);
+    canvas.removeEventListener('touchend', onPointerEnd);
+  };
 
   function update() {
     frame++;
